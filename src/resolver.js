@@ -1,7 +1,3 @@
-const al_api = await import(`${process.cwd()}/node_modules/agentlang/out/runtime/api.js`);
-
-const makeInstance = al_api.makeInstance;
-
 function getApiKey() {
     return process.env['SLACK_API_KEY']
 }
@@ -48,7 +44,7 @@ async function getAndProcessLastMessage(resolver) {
     if (m) {
         lastTs = m.ts
         const attrs = new Map().set('id', m.client_msg_id).set('ts', m.ts).set('text', m.text)
-        const inst = makeInstance('slack', 'Message', attrs)
+        const inst = agentlang.makeInstance('slack', 'Message', attrs)
         await resolver.onSubscription(inst, true);
     }
 }
