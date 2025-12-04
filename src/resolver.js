@@ -53,19 +53,18 @@ export async function createMessage(resolver, inst) {
 }
 
 async function getAndProcessLastMessage(resolver) {
-    const ts = lastTs
-    const apiUrl = getUrl(`conversations.history?channel=${getChannel()}&oldest=${ts}&limit=5&inclusive=false`)
+    const apiUrl = getUrl(`conversations.history?channel=${getChannel()}&oldest=${lastTs}&limit=5&inclusive=false`)
     const resp = await handleFetch(apiUrl, {
         method: 'GET',
         headers: StandardHeaders()
     });
     const msgs = resp['messages']
-    for (let i = 0; i < msgs.length; ++i) {
+    for (let i = msgs.length - 1; i >= 0; --i) {
         const m = msgs[i]
         if (m) {
             lastTs = m.ts
             if (m.subtype === 'tombstone' || m.subtype === 'channel_join') continue
-            const attrs = new Map().set('id', m.client_msg_id).set('ts', `${m.ts}`).set('text', m.text)
+            const attrs = new Map().set('id', m.client_msg_id).set('ts', `${lastTs}`).set('text', m.text)
             const inst = agentlang.makeInstance('slack', 'Message', attrs)
             await resolver.onSubscription(inst, true);
         }
